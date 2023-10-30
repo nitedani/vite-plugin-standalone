@@ -17,14 +17,14 @@ export const standalone = (): Plugin => {
       return !!env.ssrBuild;
     },
     enforce: 'post',
-    config(config, env) {
-      return {
-        ssr: {
-          external: ['sharp', ...external],
-          noExternal: noExternalRegex,
-        },
-      };
-    },
+    // config(config, env) {
+    //   return {
+    //     ssr: {
+    //       external: ['sharp', '@node-rs/argon2', ...external],
+    //       noExternal: noExternalRegex,
+    //     },
+    //   };
+    // },
 
     configResolved(config) {
       root = config.root;

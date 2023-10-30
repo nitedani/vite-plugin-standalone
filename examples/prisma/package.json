@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "node index.js",
+    "start": "node dist/index.js",
     "dev": "vite",
     "build": "vite build --ssr --mode=production"
   },
