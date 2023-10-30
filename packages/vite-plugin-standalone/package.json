@@ -1,0 +1,40 @@
+{
+  "name": "vite-plugin-standalone",
+  "version": "0.0.1",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "standalone",
+    "vite"
+  ],
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/nitedani/vite-plugin-standalone"
+  },
+  "scripts": {
+    "build": "rimraf lib && tsc -b"
+  },
+  "exports": {
+    ".": "./lib/index.js"
+  },
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "@vercel/ncc": "^0.38.1",
+    "@vercel/nft": "^0.24.3",
+    "fs-extra": "^11.1.1"
+  },
+  "peerDependencies": {
+    "vite": "*"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.3",
+    "rimraf": "^3.0.2",
+    "typescript": "^5.2.2"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "arrowParens": "avoid"
+  }
+}
