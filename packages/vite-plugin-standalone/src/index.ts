@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'fs';
-import { writeFile } from 'fs/promises';
+import { writeFile, mkdir } from 'fs/promises';
 import { builtinModules } from 'module';
-import { join } from 'path';
+import { join, dirname } from 'path';
 import { Plugin } from 'vite';
 
 export const standalone = (): Plugin => {
@@ -20,7 +20,7 @@ export const standalone = (): Plugin => {
     config(config, env) {
       return {
         ssr: {
-          external,
+          external: ['sharp', ...external],
           noExternal: noExternalRegex,
         },
       };
@@ -65,14 +65,45 @@ export const standalone = (): Plugin => {
         // debugLog: false, // default
       });
 
-      await writeFile(entry, code);
+      const banner = `
+import { dirname as dirname2 } from 'path';
+import { fileURLToPath as fileURLToPath2 } from 'url';
+import { createRequire as createRequire2 } from 'module';
+var __filename = fileURLToPath2(import.meta.url);
+var __dirname = dirname2(__filename);
+var require = createRequire2(import.meta.url);
+      `;
+      await writeFile(entry, banner + code);
 
       for (const [key, value] of Object.entries(assets)) {
-        const fname = key.split('/').pop();
+        let fname = key;
         if (fname && value && typeof value === 'object' && 'source' in value) {
           if (fname === 'package.json') {
             continue;
           }
+
+          if (fname.endsWith('schema.prisma')) {
+            const last = fname.split('/').pop();
+            if (last) {
+              fname = last;
+            }
+          }
+
+          if (fname.includes('libquery')) {
+            const last = fname.split('/').pop();
+            if (last) {
+              fname = last;
+            }
+          }
+
+          const loc = fname.indexOf('node_modules');
+          if (loc) {
+            fname = fname.substring(loc);
+          }
+
+          try {
+            await mkdir(dirname(join(outDirAbs, fname)), { recursive: true });
+          } catch (error) {}
           await writeFile(join(outDirAbs, fname), value.source as Buffer);
         }
       }
