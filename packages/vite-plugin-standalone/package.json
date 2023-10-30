@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "license": "MIT",
   "type": "module",
+  "main": "lib/index.js",
   "keywords": [
     "standalone",
     "vite"
@@ -15,7 +16,7 @@
     "build": "rimraf lib && tsc -b"
   },
   "exports": {
-    ".": "./lib/index.js"
+    "import": "./lib/index.js"
   },
   "files": [
     "lib"
