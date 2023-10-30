@@ -6,9 +6,8 @@ export default defineConfig({
   plugins: [
     vavite({
       handlerEntry: "/src/server.ts",
-      reloadOn: "static-deps-change",
       serveClientAssetsInDev: true,
     }),
-    standalone()
+    standalone(),
   ],
 });
