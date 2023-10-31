@@ -82,6 +82,11 @@ var require = createRequire2(import.meta.url);
             continue;
           }
 
+          let source = value.source as Buffer | string;
+          if (fname.endsWith(".mjs") || fname.endsWith(".js")) {
+              source = banner + source.toString("utf-8")
+          }
+
           if (fname.endsWith('schema.prisma')) {
             const last = fname.split('/').pop();
             if (last) {
@@ -104,7 +109,7 @@ var require = createRequire2(import.meta.url);
           try {
             await mkdir(dirname(join(outDirAbs, fname)), { recursive: true });
           } catch (error) {}
-          await writeFile(join(outDirAbs, fname), value.source as Buffer);
+          await writeFile(join(outDirAbs, fname), source as string);
         }
       }
 
