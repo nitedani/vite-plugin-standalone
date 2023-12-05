@@ -4,24 +4,14 @@ import { UserConfig } from "vite";
 import { vavite } from "vavite";
 import { standalone } from "vite-plugin-standalone";
 const config: UserConfig = {
-  buildSteps: [
-    { name: "client" },
-    {
-      name: "server",
-      config: {
-        build: { ssr: true },
-      },
-    },
-  ],
-
   plugins: [
     vavite({
       serverEntry: "/server/index.ts",
       serveClientAssetsInDev: true,
     }),
     react(),
-    ssr({ disableAutoFullBuild: true }),
     standalone(),
+    ssr({ disableAutoFullBuild: true }),
   ],
 };
 

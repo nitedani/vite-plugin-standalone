@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vavite build",
+    "build": "vite build && vite build --ssr",
     "start": "cross-env NODE_ENV=production node dist/server/index.mjs"
   },
   "dependencies": {
@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "vavite": "^3.0.0",
-    "vite-plugin-standalone": "^0.0.2",
+    "vite-plugin-standalone": "*",
     "vite": "^5.0.0",
     "vike": "^0.4.144",
     "typescript": "^5.2.2"
