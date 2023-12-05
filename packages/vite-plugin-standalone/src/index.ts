@@ -14,14 +14,14 @@ export const standalone = (): Plugin => {
   return {
     name: 'vite-plugin-standalone',
     apply(config, env) {
-      return !!env.ssrBuild;
+      return !!env.isSsrBuild
     },
     enforce: 'post',
     // config(config, env) {
     //   return {
     //     ssr: {
-    //       external: ['sharp', '@node-rs/argon2', ...external],
-    //       noExternal: noExternalRegex,
+    //       external: ['sharp', '@node-rs/argon2',  ...external],
+    //       // noExternal: noExternalRegex,
     //     },
     //   };
     // },
