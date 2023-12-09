@@ -22,7 +22,8 @@
     "lib"
   ],
   "dependencies": {
-    "@vercel/ncc": "^0.38.1"
+    "@vercel/nft": "^0.24.4",
+    "async-sema": "^3.1.1"
   },
   "peerDependencies": {
     "vite": "*"

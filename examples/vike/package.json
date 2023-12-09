@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && vite build --ssr",
+    "build": "rimraf dist && vite build && vite build --ssr",
     "start": "cross-env NODE_ENV=production node dist/server/index.mjs"
   },
   "dependencies": {
@@ -24,6 +24,7 @@
     "vite-plugin-standalone": "*",
     "vite": "^5.0.0",
     "vike": "^0.4.144",
+    "rimraf": "^5.0.5",
     "typescript": "^5.2.2"
   }
 }

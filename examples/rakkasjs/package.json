@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "rakkas",
-    "build": "rakkas build",
+    "build": "rimraf dist && rakkas build",
     "start": "node dist/server",
     "format": "prettier --write --ignore-unknown src",
     "test": "pnpm test:typecheck && pnpm test:format && pnpm test:lint",
@@ -18,9 +18,10 @@
     "@types/react-dom": "^18.0.11",
     "eslint": "^8.34.0",
     "prettier": "^2.8.4",
-    "rakkasjs": "0.6.20",
+    "rakkasjs": "0.7.0-next.24",
     "typescript": "^4.9.5",
     "vite": "^5.0.0",
+    "rimraf": "^5.0.5",
     "vite-tsconfig-paths": "^4.0.5",
     "vite-plugin-standalone": "*"
   },
