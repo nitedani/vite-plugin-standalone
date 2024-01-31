@@ -8,6 +8,6 @@ export default defineConfig({
       handlerEntry: "/src/server.ts",
       serveClientAssetsInDev: true,
     }),
-    standalone({ workers: ["./src/worker.js"] }),
+    standalone({ entry: ["./src/worker.js"] }),
   ],
 });

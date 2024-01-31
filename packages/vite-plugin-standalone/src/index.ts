@@ -28,8 +28,8 @@ function assert(condition: unknown, debugInfo?: unknown): asserts condition {
 }
 
 type StandaloneOptions = {
-  native?: string[];
-  workers?: string[];
+  external?: string[];
+  entry?: string | string[];
 };
 
 export const standalone = (options: StandaloneOptions = {}): Plugin => {
@@ -45,7 +45,7 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
     '@generated/prisma',
     '@prisma/client',
     '@node-rs/argon2',
-    ...(options.native ?? []),
+    ...(options.external ?? []),
   ];
 
   // https://github.com/nestjs/nest-cli/blob/edbd64d1eb186c49c28b7594e5d8269a5b125385/lib/compiler/defaults/webpack-defaults.ts#L69
@@ -57,11 +57,11 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
     'class-transformer',
   ];
 
-  const workersProvided = options.workers ?? [];
-  const workersResolved: { [name: string]: string } = {};
-  for (const worker of workersProvided) {
-    const name = getEntryName(worker);
-    workersResolved[name] = worker;
+  const entriesProvided = options.entry ?? [];
+  const entriesResolved: { [name: string]: string } = {};
+  for (const entry of [entriesProvided].flat()) {
+    const name = getEntryName(entry);
+    entriesResolved[name] = entry;
   }
 
   return {
@@ -84,7 +84,7 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
           rollupOptions: {
             // add extra entries for server-only usage
             // for example child_process.fork
-            input: workersResolved,
+            input: entriesResolved,
           },
         },
       };
@@ -268,9 +268,12 @@ function findRollupBundleEntries<
 >(bundle: OutputBundle): OutputBundle[string][] {
   const entries: OutputBundle[string][] = [];
   for (const key in bundle) {
-    if (key.endsWith('.map')) continue; // https://github.com/brillout/vite-plugin-ssr/issues/612
+    // https://github.com/brillout/vite-plugin-ssr/issues/612
+    if (key.endsWith('.map') || key.endsWith('.json')) continue;
     const entry = bundle[key]!;
-    entries.push(entry);
+    if ('isEntry' in entry && entry.isEntry) {
+      entries.push(entry);
+    }
   }
   return entries.sort((a, b) => {
     const isIndexA = a.name === 'index';
