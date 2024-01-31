@@ -282,6 +282,9 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1
     devDependencies:
+      esbuild:
+        specifier: ^0.19.0
+        version: 0.19.8
       rimraf:
         specifier: ^3.0.2
         version: 3.0.2
