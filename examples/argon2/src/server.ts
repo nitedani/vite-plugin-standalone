@@ -5,8 +5,8 @@ import { hash } from "@node-rs/argon2";
 import { fork } from "child_process";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
-var __filename = fileURLToPath(import.meta.url);
-var __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const argon2Opts = {

@@ -15,4 +15,4 @@ const argon2Opts = {
   console.log("worker.ts", { hashed });
 })();
 
-console.log("worker.ts", express);
+console.log("worker.js", express);

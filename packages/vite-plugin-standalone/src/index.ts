@@ -29,6 +29,7 @@ function assert(condition: unknown, debugInfo?: unknown): asserts condition {
 
 type StandaloneOptions = {
   native?: string[];
+  workers?: string[];
 };
 
 export const standalone = (options: StandaloneOptions = {}): Plugin => {
@@ -56,6 +57,13 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
     'class-transformer',
   ];
 
+  const workersProvided = options.workers ?? [];
+  const workersResolved: { [name: string]: string } = {};
+  for (const worker of workersProvided) {
+    const name = getEntryName(worker);
+    workersResolved[name] = worker;
+  }
+
   return {
     name: 'vite-plugin-standalone',
     apply(_, env) {
@@ -71,6 +79,13 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
         },
         optimizeDeps: {
           exclude: native,
+        },
+        build: {
+          rollupOptions: {
+            // add extra entries for server-only usage
+            // for example child_process.fork
+            input: workersResolved,
+          },
         },
       };
     },
@@ -318,3 +333,11 @@ function isYarnPnP(): boolean {
     return false;
   }
 }
+
+export const getEntryName = (input: string) => {
+  const m = /([^\\\/]+)$/.exec(input);
+  if (!m?.[1]) {
+    throw new Error('workers should be an array of relative paths');
+  }
+  return m[1].split('.')[0]!;
+};
