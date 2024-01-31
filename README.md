@@ -1,5 +1,5 @@
 # vite-plugin-standalone
 
-A vite plugin, that uses [@vercel/nft](https://github.com/vercel/nft) to create a standalone server build. Using this plugin, no node_modules is required for deployment, only the build folder need to be copied.
+A vite plugin, that uses [@vercel/nft](https://github.com/vercel/nft) and esbuild to create a standalone server build. Using this plugin, no node_modules is required for deployment, only the build folder need to be copied.
 
-Warning: This is an experimental plugin. It may or may not work for you. If it doesn't work, please open an issue, so I can investigate.
+Native dependencies need to be manually set in `options.native` - the defaults are `sharp`, `@prisma/client`, `@node-rs/argon2`
