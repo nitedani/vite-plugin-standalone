@@ -12,7 +12,7 @@ const argon2Opts = {
 
 (async () => {
   const hashed = await hash("password", argon2Opts);
-  console.log("worker.ts", { hashed });
+  console.log("worker.js", { hashed });
 })();
 
 console.log("worker.js", express);
