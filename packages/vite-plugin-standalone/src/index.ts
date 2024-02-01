@@ -35,7 +35,6 @@ type StandaloneOptions = {
 export const standalone = (options: StandaloneOptions = {}): Plugin => {
   let root = '';
   let outDir = '';
-  let distDir = '';
   let outDirAbs = '';
   let rollupEntryFilePaths: string[];
   let rollupResolve: any;
@@ -95,7 +94,6 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
     async configResolved(config) {
       root = toPosixPath(config.root);
       outDir = toPosixPath(config.build.outDir);
-      distDir = outDir.split('/')[0]!;
       outDirAbs = path.posix.join(root, outDir);
     },
     writeBundle(_, bundle) {
@@ -107,6 +105,7 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
       );
     },
     async closeBundle() {
+      const bundledEntryPaths: string[] = [];
       for (const entryFilePath of rollupEntryFilePaths) {
         try {
           await fs.stat(entryFilePath);
@@ -171,7 +170,7 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
         const filesToRemove = Object.keys(res.metafile.inputs).filter(
           relativeFile =>
             !entryFilePath.endsWith(relativeFile) &&
-            relativeFile.startsWith(distDir),
+            relativeFile.startsWith(outDir),
         );
         for (const relativeFile of filesToRemove) {
           await fs.rm(path.posix.join(root, relativeFile));
@@ -189,10 +188,14 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
           }
         }
 
-        const base = toPosixPath(searchForWorkspaceRoot(root));
-        const relativeRoot = path.posix.relative(base, root);
-        const relativeDistDir = path.posix.relative(base, distDir);
+        bundledEntryPaths.push(entryFilePath);
+      }
 
+      const base = toPosixPath(searchForWorkspaceRoot(root));
+      const relativeRoot = path.posix.relative(base, root);
+      const relativeOutDir = path.posix.join(relativeRoot, outDir);
+
+      for (const entryFilePath of bundledEntryPaths) {
         const { nodeFileTrace } = await import('@vercel/nft');
         const result = await nodeFileTrace([entryFilePath], {
           base,
@@ -207,7 +210,7 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
         }
 
         const files = [...tracedDeps].filter(
-          path => !path.startsWith(relativeDistDir) && !path.startsWith('usr/'),
+          path => !path.startsWith(relativeOutDir) && !path.startsWith('usr/'),
         );
 
         // We are done, no native dependencies need to be copied
