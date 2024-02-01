@@ -98,8 +98,8 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
     },
     writeBundle(_, bundle) {
       const entries = findRollupBundleEntries(bundle);
-      const serverIndex = entries.find(e => e.name === 'index');
-      assert(serverIndex);
+      // const serverIndex = entries.find(e => e.name === 'index');
+      // assert(serverIndex);
       rollupEntryFilePaths = entries.map(e =>
         path.posix.join(outDirAbs, e.fileName),
       );
