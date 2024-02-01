@@ -106,6 +106,7 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
     },
     async closeBundle() {
       const bundledEntryPaths: string[] = [];
+      const filesToRemoveAfterBundle = new Set<string>();
       for (const entryFilePath of rollupEntryFilePaths) {
         try {
           await fs.stat(entryFilePath);
@@ -113,7 +114,6 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
           // the entry was bundled in the previous iteration
           continue;
         }
-
         const res = await esbuild.build({
           platform: 'node',
           format: 'esm',
@@ -166,29 +166,36 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
           ],
         });
 
-        // The inputs of the bundled files are safe to remove
-        const filesToRemove = Object.keys(res.metafile.inputs).filter(
+        // The inputs of the bundled files are safe to remove from the outDir folder
+        const bundledFilesFromOutDir = Object.keys(res.metafile.inputs).filter(
           relativeFile =>
             !entryFilePath.endsWith(relativeFile) &&
             relativeFile.startsWith(outDir),
         );
-        for (const relativeFile of filesToRemove) {
-          await fs.rm(path.posix.join(root, relativeFile));
-        }
 
-        // Remove leftover empty dirs
-        const relativeDirs = unique(
-          filesToRemove.map(file => path.dirname(file)),
-        );
-        for (const relativeDir of relativeDirs) {
-          const absDir = path.posix.join(root, relativeDir);
-          const files = await fs.readdir(absDir);
-          if (!files.length) {
-            await fs.rm(absDir, { recursive: true });
-          }
+        for (const relativeFile of bundledFilesFromOutDir) {
+          filesToRemoveAfterBundle.add(relativeFile);
         }
 
         bundledEntryPaths.push(entryFilePath);
+      }
+
+      const filesToRemoveAfterBundleArr = Array.from(filesToRemoveAfterBundle);
+
+      for (const relativeFile of filesToRemoveAfterBundleArr) {
+        await fs.rm(path.posix.join(root, relativeFile));
+      }
+
+      // Remove leftover empty dirs
+      const relativeDirs = unique(
+        filesToRemoveAfterBundleArr.map(file => path.dirname(file)),
+      );
+      for (const relativeDir of relativeDirs) {
+        const absDir = path.posix.join(root, relativeDir);
+        const files = await fs.readdir(absDir);
+        if (!files.length) {
+          await fs.rm(absDir, { recursive: true });
+        }
       }
 
       const base = toPosixPath(searchForWorkspaceRoot(root));

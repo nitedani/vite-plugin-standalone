@@ -1,6 +1,7 @@
 console.log("hello from child process");
 import { hash } from "@node-rs/argon2";
-import express from "express";
+// import express from "express";
+import { two } from "./shared.js";
 
 const argon2Opts = {
   memory: 3145728,
@@ -15,4 +16,5 @@ const argon2Opts = {
   console.log("worker.js", { hashed });
 })();
 
-console.log("worker.js", express);
+// console.log("worker.js", express);
+console.log("worker.js", two());
