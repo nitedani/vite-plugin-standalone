@@ -10,7 +10,11 @@ const config: UserConfig = {
       serveClientAssetsInDev: true,
     }),
     react(),
-    standalone(),
+    standalone({
+      entry: {
+        worker: "./server/worker.js",
+      },
+    }),
     ssr({ disableAutoFullBuild: true }),
   ],
 };

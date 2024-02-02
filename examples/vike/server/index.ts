@@ -3,10 +3,13 @@
 import express from "express";
 import { renderPage } from "vike/server";
 import httpDevServer from "vavite/http-dev-server";
+import { two } from "./shared.js";
 
 startServer();
 
 async function startServer() {
+	console.log("index.ts", two());
+	
 	const app = express();
 
 	if (!httpDevServer) {

@@ -3,36 +3,26 @@ import esbuild from 'esbuild';
 import fs from 'fs/promises';
 import path from 'path';
 import { Plugin, searchForWorkspaceRoot } from 'vite';
+import { createRequire } from 'module';
+import { assert, assertUsage } from './assert.js';
+import { injectRollupInputs } from './injectRollupInput.js';
 
-function assert(condition: unknown, debugInfo?: unknown): asserts condition {
-  if (condition) return;
-
-  const debugStr = (() => {
-    if (!debugInfo) {
-      return null;
-    }
-    const debugInfoSerialized =
-      typeof debugInfo === 'string' ? debugInfo : JSON.stringify(debugInfo);
-    return `Debug info (for vite-plugin-standalone maintainers; you can ignore this): ${debugInfoSerialized}`;
-  })();
-
-  let errMsg = [
-    `You stumbled upon a bug in vite-plugin-standalone's source code.`,
-    `Go to https://github.com/nitedani/vite-plugin-standalone and copy-paste this error.`,
-    debugStr,
-  ]
-    .filter(Boolean)
-    .join(' ');
-
-  throw new Error(errMsg);
-}
+const require_ = createRequire(import.meta.url);
 
 type StandaloneOptions = {
   external?: string[];
-  entry?: string | string[];
+  entry?: string | { [name: string]: string };
 };
 
-export const standalone = (options: StandaloneOptions = {}): Plugin => {
+type StandaloneOptionsResolved = {
+  external: string[];
+  entry: { [name: string]: string };
+  autoDetect: boolean;
+};
+
+export const standalone = (options?: StandaloneOptions): Plugin => {
+  const resolvedOptions = resolveOptions(options);
+
   let root = '';
   let outDir = '';
   let outDirAbs = '';
@@ -44,7 +34,7 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
     '@generated/prisma',
     '@prisma/client',
     '@node-rs/argon2',
-    ...(options.external ?? []),
+    ...resolvedOptions.external,
   ];
 
   // https://github.com/nestjs/nest-cli/blob/edbd64d1eb186c49c28b7594e5d8269a5b125385/lib/compiler/defaults/webpack-defaults.ts#L69
@@ -55,14 +45,6 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
     'class-validator',
     'class-transformer',
   ];
-
-  const entriesProvided = options.entry ?? [];
-  const entriesResolved: { [name: string]: string } = {};
-  for (const entry of [entriesProvided].flat()) {
-    const name = getEntryName(entry);
-    entriesResolved[name] = entry;
-  }
-
   return {
     name: 'vite-plugin-standalone',
     apply(_, env) {
@@ -79,13 +61,6 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
         optimizeDeps: {
           exclude: native,
         },
-        build: {
-          rollupOptions: {
-            // add extra entries for server-only usage
-            // for example child_process.fork
-            input: entriesResolved,
-          },
-        },
       };
     },
     buildStart() {
@@ -95,11 +70,33 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
       root = toPosixPath(config.root);
       outDir = toPosixPath(config.build.outDir);
       outDirAbs = path.posix.join(root, outDir);
+
+      if (options?.entry) {
+        const entries = Object.entries(resolvedOptions.entry);
+        const resolvedEntries: { [name: string]: string } = {};
+        for (const [name, path_] of entries) {
+          let entryFilePath = path.join(config.root, path_);
+          try {
+            resolvedEntries[name] = require_.resolve(entryFilePath);
+          } catch (err) {
+            assert(
+              (err as Record<string, unknown>).code === 'MODULE_NOT_FOUND',
+            );
+            assertUsage(
+              false,
+              `No file found at ${entryFilePath}. Does the value ${options.entry} of options.entry point to an existing file?`,
+            );
+          }
+        }
+
+        config.build.rollupOptions.input = injectRollupInputs(
+          resolvedEntries,
+          config,
+        );
+      }
     },
     writeBundle(_, bundle) {
-      const entries = findRollupBundleEntries(bundle);
-      // const serverIndex = entries.find(e => e.name === 'index');
-      // assert(serverIndex);
+      const entries = findRollupBundleEntries(bundle, resolvedOptions, root);
       rollupEntryFilePaths = entries.map(e =>
         path.posix.join(outDirAbs, e.fileName),
       );
@@ -107,13 +104,11 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
     async closeBundle() {
       const bundledEntryPaths: string[] = [];
       const filesToRemoveAfterBundle = new Set<string>();
+      const base = toPosixPath(searchForWorkspaceRoot(root));
+      const relativeRoot = path.posix.relative(base, root);
+      const relativeOutDir = path.posix.join(relativeRoot, outDir);
+
       for (const entryFilePath of rollupEntryFilePaths) {
-        try {
-          await fs.stat(entryFilePath);
-        } catch {
-          // the entry was bundled in the previous iteration
-          continue;
-        }
         const res = await esbuild.build({
           platform: 'node',
           format: 'esm',
@@ -181,7 +176,6 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
       }
 
       const filesToRemoveAfterBundleArr = Array.from(filesToRemoveAfterBundle);
-
       for (const relativeFile of filesToRemoveAfterBundleArr) {
         await fs.rm(path.posix.join(root, relativeFile));
       }
@@ -197,10 +191,6 @@ export const standalone = (options: StandaloneOptions = {}): Plugin => {
           await fs.rm(absDir, { recursive: true });
         }
       }
-
-      const base = toPosixPath(searchForWorkspaceRoot(root));
-      const relativeRoot = path.posix.relative(base, root);
-      const relativeOutDir = path.posix.join(relativeRoot, outDir);
 
       for (const entryFilePath of bundledEntryPaths) {
         const { nodeFileTrace } = await import('@vercel/nft');
@@ -274,17 +264,90 @@ function toPosixPath(path: string): string {
 }
 
 function findRollupBundleEntries<
-  OutputBundle extends Record<string, { name: string | undefined }>,
->(bundle: OutputBundle): OutputBundle[string][] {
+  OutputBundle extends Record<
+    string,
+    { name: string | undefined; fileName: string | undefined }
+  >,
+>(
+  bundle: OutputBundle,
+  standaloneConfig: StandaloneOptionsResolved,
+  root: string,
+): OutputBundle[string][] {
+  assert(standaloneConfig?.entry);
+
+  const remainingEntries = new Set(
+    Object.values(standaloneConfig.entry).map(entryPath =>
+      path.posix.join(root, entryPath),
+    ),
+  );
+  const len = remainingEntries.size;
   const entries: OutputBundle[string][] = [];
+
+  // Try to precisely find the entries
   for (const key in bundle) {
-    // https://github.com/brillout/vite-plugin-ssr/issues/612
-    if (key.endsWith('.map') || key.endsWith('.json')) continue;
     const entry = bundle[key]!;
-    if ('isEntry' in entry && entry.isEntry) {
+
+    if (
+      !('facadeModuleId' in entry) ||
+      // https://github.com/brillout/vite-plugin-ssr/issues/612
+      key.endsWith('.map') ||
+      key.endsWith('.json')
+    )
+      continue;
+    assert(
+      entry.facadeModuleId === null || typeof entry.facadeModuleId === 'string',
+    );
+
+    if (entry.facadeModuleId && remainingEntries.has(entry.facadeModuleId)) {
+      remainingEntries.delete(entry.facadeModuleId);
       entries.push(entry);
     }
   }
+
+  // Try to precisely find the entries (not so precise)
+  if (remainingEntries.size) {
+    for (const key in bundle) {
+      const entry = bundle[key]!;
+      if (
+        !('moduleIds' in entry && Array.isArray(entry.moduleIds)) ||
+        key.endsWith('.map') ||
+        key.endsWith('.json')
+      )
+        continue;
+
+      const found = entry.moduleIds.find(id => remainingEntries.has(id));
+      if (found) {
+        remainingEntries.delete(found);
+        entries.push(entry);
+      }
+    }
+  }
+
+  // try to auto detect the index entry
+  if (
+    standaloneConfig.autoDetect &&
+    !Object.keys(standaloneConfig.entry).includes('index')
+  ) {
+    console.warn(
+      "[vite-plugin-standalone] options.entry doesn't explicitly set index, trying to detect the index entry",
+    );
+
+    for (const key in bundle) {
+      const entry = bundle[key]!;
+      if (key.endsWith('.map') || key.endsWith('.json')) continue;
+
+      if ('isEntry' in entry && entry.isEntry && entry.name === 'index') {
+        entries.push(entry);
+        console.warn(
+          `[vite-plugin-standalone] detected index entry ${entry.fileName}`,
+        );
+      }
+    }
+  }
+
+  assert(entries.length && entries.length >= len, 'Failed to find entries');
+
+  // bundle the index entry first
   return entries.sort((a, b) => {
     const isIndexA = a.name === 'index';
     const isIndexB = a.name === 'index';
@@ -347,10 +410,36 @@ function isYarnPnP(): boolean {
   }
 }
 
-export const getEntryName = (input: string) => {
-  const m = /([^\\\/]+)$/.exec(input);
-  if (!m?.[1]) {
-    throw new Error('workers should be an array of relative paths');
+function resolveOptions(
+  options?: StandaloneOptions,
+): StandaloneOptionsResolved {
+  if (!options) {
+    return { external: [], autoDetect: true, entry: {} };
   }
-  return m[1].split('.')[0]!;
-};
+  assertUsage(
+    typeof options.entry === 'string' ||
+      (typeof options.entry === 'object' &&
+        Object.entries(options.entry).every(
+          ([, value]) => typeof value === 'string',
+        )),
+    'options.entry should be a string or an entry mapping { name: path }',
+  );
+
+  assertUsage(
+    !options.external ||
+      (Array.isArray(options.external) &&
+        options.external.every(e => typeof e === 'string')),
+    'options.external should be a string array',
+  );
+
+  const entriesProvided =
+    typeof options.entry === 'string'
+      ? { index: options.entry }
+      : options.entry;
+
+  return {
+    entry: entriesProvided,
+    external: options.external ?? [],
+    autoDetect: !('index' in entriesProvided),
+  };
+}
