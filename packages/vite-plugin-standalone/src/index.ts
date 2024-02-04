@@ -118,6 +118,9 @@ export const standalone = (options?: StandaloneOptions): Plugin => {
           outfile: entryFilePath,
           allowOverwrite: true,
           metafile: true,
+          logOverride: {
+            'ignored-bare-import': 'silent'
+          },
           banner: {
             js: [
               "import { dirname as dirname987 } from 'path';",
