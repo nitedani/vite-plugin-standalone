@@ -12,12 +12,14 @@ const require_ = createRequire(import.meta.url);
 type StandaloneOptions = {
   external?: string[];
   entry?: string | { [name: string]: string };
+  esbuild?: esbuild.BuildOptions;
 };
 
 type StandaloneOptionsResolved = {
   external: string[];
   entry: { [name: string]: string };
   autoDetect: boolean;
+  esbuild: esbuild.BuildOptions;
 };
 
 export const standalone = (options?: StandaloneOptions): Plugin => {
@@ -114,12 +116,8 @@ export const standalone = (options?: StandaloneOptions): Plugin => {
           format: 'esm',
           bundle: true,
           external: native,
-          entryPoints: { index: entryFilePath },
-          outfile: entryFilePath,
-          allowOverwrite: true,
-          metafile: true,
           logOverride: {
-            'ignored-bare-import': 'silent'
+            'ignored-bare-import': 'silent',
           },
           banner: {
             js: [
@@ -162,6 +160,11 @@ export const standalone = (options?: StandaloneOptions): Plugin => {
               },
             },
           ],
+          entryPoints: { index: entryFilePath },
+          outfile: entryFilePath,
+          allowOverwrite: true,
+          ...resolvedOptions.esbuild,
+          metafile: true,
         });
 
         // The inputs of the bundled files are safe to remove from the outDir folder
@@ -417,7 +420,7 @@ function resolveOptions(
   options?: StandaloneOptions,
 ): StandaloneOptionsResolved {
   if (!options) {
-    return { external: [], autoDetect: true, entry: {} };
+    return { external: [], autoDetect: true, entry: {}, esbuild: {} };
   }
   assertUsage(
     typeof options.entry === 'string' ||
@@ -444,5 +447,6 @@ function resolveOptions(
     entry: entriesProvided,
     external: options.external ?? [],
     autoDetect: !('index' in entriesProvided),
+    esbuild: options.esbuild ?? {},
   };
 }
