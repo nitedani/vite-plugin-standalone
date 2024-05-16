@@ -22,8 +22,8 @@
   "devDependencies": {
     "vavite": "^3.0.0",
     "vite-plugin-standalone": "*",
-    "vite": "^5.0.0",
-    "vike": "^0.4.144",
+    "vite": "v6.0.0-alpha.11",
+    "vike": "^0.4.171",
     "rimraf": "^5.0.5",
     "typescript": "^5.2.2"
   }

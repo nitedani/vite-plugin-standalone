@@ -1,0 +1,60 @@
+{
+  "name": "vite-plugin-node",
+  "version": "2.0.0-alpha.0",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./connect": "./lib/connect.js",
+    "./fastify": "./lib/fastify.js",
+    "./web": "./lib/web.js",
+    "./plugin": "./lib/plugin/index.js"
+  },
+  "keywords": [
+    "node",
+    "vite"
+  ],
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/nitedani/vite-plugin-standalone"
+  },
+  "scripts": {
+    "build": "rimraf lib && tsc -b"
+  },
+  "files": [
+    "lib"
+  ],
+  "dependencies": {
+    "@brillout/picocolors": "^1.0.10",
+    "@nitedani/shrink-ray-current": "^4.2.0",
+    "birpc": "^0.2.15",
+    "sirv": "^2.0.4",
+    "vite-plugin-standalone": "^2.0.0-alpha.0"
+  },
+  "peerDependencies": {
+    "vite": "*"
+  },
+  "typesVersions": {
+    "*": {
+      "connect": [
+        "./lib/connect.d.ts"
+      ],
+      "fastify": [
+        "./lib/fastify.d.ts"
+      ],
+      "web": [
+        "./lib/web.d.ts"
+      ],
+      "plugin": [
+        "./lib/plugin/index.d.ts"
+      ]
+    }
+  },
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "^5.3.3",
+    "vite": "6.0.0-alpha.11",
+    "fastify": "^4.26.1",
+    "@types/node": "^20.11.19",
+    "esbuild": "^0.20.1"
+  }
+}

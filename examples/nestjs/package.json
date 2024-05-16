@@ -16,10 +16,9 @@
     "@types/node": "^20.6.5",
     "@rollup/pluginutils": "^5.0.5",
     "typescript": "^5.2.2",
-    "vavite": "3.0.0",
-    "vite": "^5.0.0",
+    "vite": "v6.0.0-alpha.11",
     "rimraf": "^5.0.5",
-    "vite-plugin-standalone": "*"
+    "vite-plugin-node": "2.0.0-alpha.0"
   },
   "dependencies": {
     "@nestjs/common": "^10.2.6",

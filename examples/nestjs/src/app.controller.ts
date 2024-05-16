@@ -1,40 +1,39 @@
-import { Controller, Get, Req, Request } from "@nestjs/common";
-import viteDevServer from "vavite/vite-dev-server";
+import { Controller, Get, Req, Request } from '@nestjs/common'
 
 @Controller()
 export class AppController {
-	@Get("/")
-	async home(@Req() request: Request) {
-		let html = "<h1>Hello from Nest.js</h1>" + nav;
+  @Get('/')
+  async home(@Req() request: Request) {
+    let html = '<h1>Hello from Nest.js</h1>' + nav
 
-		if (viteDevServer) {
-			html = await viteDevServer.transformIndexHtml(request.url, html);
-		}
+    // if (viteDevServer) a{
+    // 	html = await viteDevServer.transformIndexHtml(request.url, html);
+    // }
 
-		return html;
-	}
+    return html
+  }
 
-	@Get("/foo")
-	async foo(@Req() request: Request) {
-		let html = "<h1>Hello from page /foo</h1>" + nav;
+  @Get('/foo')
+  async foo(@Req() request: Request) {
+    let html = '<h1>Hello from page /foo</h1>' + nav
 
-		if (viteDevServer) {
-			html = await viteDevServer.transformIndexHtml(request.url, html);
-		}
+    // if (viteDevServer) {
+    // 	html = await viteDevServer.transformIndexHtml(request.url, html);
+    // }
 
-		return html;
-	}
+    return html
+  }
 
-	@Get("/bar")
-	async bar(@Req() request: Request) {
-		let html = "<h1>Hello from page /bar</h1>" + nav;
+  @Get('/bar')
+  async bar(@Req() request: Request) {
+    let html = '<h1>Hello from page /bar</h1>' + nav
 
-		if (viteDevServer) {
-			html = await viteDevServer.transformIndexHtml(request.url, html);
-		}
+    // if (viteDevServer) {
+    // 	html = await viteDevServer.transformIndexHtml(request.url, html);
+    // }
 
-		return html;
-	}
+    return html
+  }
 }
 
 const nav = `
@@ -45,4 +44,4 @@ const nav = `
 			<li><a href="/bar">Bar</a></li>
 		</ul>
 	</nav>
-`;
+`

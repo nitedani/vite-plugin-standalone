@@ -9,13 +9,13 @@ import { injectRollupInputs } from './injectRollupInput.js';
 
 const require_ = createRequire(import.meta.url);
 
-type StandaloneOptions = {
+export type StandaloneOptions = {
   external?: string[];
   entry?: string | { [name: string]: string };
   esbuild?: esbuild.BuildOptions;
 };
 
-type StandaloneOptionsResolved = {
+export type StandaloneOptionsResolved = {
   external: string[];
   entry: { [name: string]: string };
   autoDetect: boolean;
@@ -50,12 +50,19 @@ export const standalone = (options?: StandaloneOptions): Plugin => {
   return {
     name: 'vite-plugin-standalone',
     apply(_, env) {
-      //@ts-expect-error Vite 5 || Vite 4
-      return !!(env.isSsrBuild || env.ssrBuild);
+      return !!env.isSsrBuild;
     },
     enforce: 'post',
     config(config, env) {
       return {
+        environments: {
+          ssr: {
+            resolve: { external: native, noExternal: ['@brillout/picocolors'] },
+          },
+          client: {
+            resolve: { external: native, noExternal: ['@brillout/picocolors'] },
+          },
+        },
         ssr: {
           noExternal: ['@brillout/picocolors'],
           external: native,
