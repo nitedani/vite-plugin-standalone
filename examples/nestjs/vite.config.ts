@@ -1,7 +1,7 @@
 import { defineConfig, Plugin } from 'vite'
 import { createFilter } from '@rollup/pluginutils'
 import type { Options } from '@swc/core'
-import { viteNode } from 'vite-plugin-node/plugin'
+import { viteNode } from '@nitedani/vite-plugin-node/plugin'
 import { transform } from '@swc/core'
 
 function swc(options: Options): Plugin {

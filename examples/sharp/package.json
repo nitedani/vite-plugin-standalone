@@ -15,10 +15,9 @@
     "@types/node": "^20.6.5",
     "prettier": "^3.0.3",
     "typescript": "^5.2.2",
-    "vavite": "3.0.0",
     "vite": "v6.0.0-alpha.11",
     "rimraf": "^5.0.5",
-    "vite-plugin-standalone": "*"
+    "@nitedani/vite-plugin-node": "2.0.0-alpha.1"
   },
   "dependencies": {
     "express": "^4.18.2",

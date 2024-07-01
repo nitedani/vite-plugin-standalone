@@ -1,21 +1,18 @@
 import react from "@vitejs/plugin-react";
-import ssr from "vike/plugin";
+import vike from "vike/plugin";
 import { UserConfig } from "vite";
-import { vavite } from "vavite";
-import { standalone } from "vite-plugin-standalone";
+import { viteNode } from "@nitedani/vite-plugin-node/plugin";
 const config: UserConfig = {
   plugins: [
-    vavite({
-      serverEntry: "/server/index.ts",
-      serveClientAssetsInDev: true,
-    }),
     react(),
-    standalone({
+    viteNode({
       entry: {
+        index: "./server/index.ts",
         worker: "./server/worker.js",
       },
+      standalone: true,
     }),
-    ssr({ disableAutoFullBuild: true }),
+    vike({ disableAutoFullBuild: true }),
   ],
 };
 

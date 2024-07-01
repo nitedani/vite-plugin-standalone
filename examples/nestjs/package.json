@@ -18,7 +18,7 @@
     "typescript": "^5.2.2",
     "vite": "v6.0.0-alpha.11",
     "rimraf": "^5.0.5",
-    "vite-plugin-node": "2.0.0-alpha.0"
+    "@nitedani/vite-plugin-node": "2.0.0-alpha.1"
   },
   "dependencies": {
     "@nestjs/common": "^10.2.6",

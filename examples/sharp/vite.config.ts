@@ -1,13 +1,6 @@
-import { vavite } from "vavite";
-import { defineConfig } from "vite";
-import { standalone } from "vite-plugin-standalone";
+import { defineConfig } from 'vite'
+import { viteNode } from '@nitedani/vite-plugin-node/plugin'
 
 export default defineConfig({
-  plugins: [
-    vavite({
-      handlerEntry: "/src/server.ts",
-      serveClientAssetsInDev: true,
-    }),
-    standalone(),
-  ],
-});
+  plugins: [viteNode({ entry: '/src/server.ts', standalone: true })]
+})

@@ -1,6 +1,6 @@
 {
-  "name": "vite-plugin-standalone",
-  "version": "1.0.9",
+  "name": "__root__",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -17,5 +17,11 @@
     "prettier": "^3.0.3",
     "turbo": "^1.10.13"
   },
-  "engines": {}
+  "engines": {},
+  "pnpm": {
+    "overrides": {
+      "vite-plugin-standalone": "link:./packages/vite-plugin-standalone/",
+      "@nitedani/vite-plugin-node": "link:./packages/vite-plugin-node/"
+    }
+  }
 }
