@@ -1,14 +1,10 @@
-/// <reference types="vite/client" />
-
 import express from 'express'
 import { renderPage } from 'vike/server'
 import { viteNode } from '@nitedani/vite-plugin-node/connect'
-import { two } from './shared.js'
 
 startServer()
 
 async function startServer() {
-  console.log('index.ts', two())
   const app = express()
 
   app.use(viteNode())
