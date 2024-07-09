@@ -17,6 +17,7 @@ const rpc = createBirpc<ServerFunctions, ClientFunctions>(
     },
     async start(workerData: WorkerData) {
       const { entry, viteConfig } = workerData
+
       // This is the minimal required object for vike + telefunc to function
       const globalObject = {
         viteConfig,
@@ -75,6 +76,11 @@ const rpc = createBirpc<ServerFunctions, ClientFunctions>(
         },
         new ESModulesEvaluator()
       )
+
+      if (viteConfig.configVikePromise) {
+        await runner.import('vike/plugin')
+      }
+
       logViteInfo('Loading server entry')
       await runner.import(entry)
     }
