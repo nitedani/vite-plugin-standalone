@@ -1,0 +1,67 @@
+diff --git a/dist/esm/node/plugin/plugins/devConfig/index.js b/dist/esm/node/plugin/plugins/devConfig/index.js
+index c7c9e7d0b5ba8e7441e8ce1ed2f3c6d7e72f6d83..8234df8dcb8d6a061a8ad6e4e91bb7223b487d48 100644
+--- a/dist/esm/node/plugin/plugins/devConfig/index.js
++++ b/dist/esm/node/plugin/plugins/devConfig/index.js
+@@ -73,12 +73,12 @@ function devConfig() {
+             configureServer: {
+                 order: 'post',
+                 handler(server) {
+-                    const hasHonoViteDevServer = !!config.plugins.find((p) => p.name === '@hono/vite-dev-server');
+-                    if (config.server.middlewareMode || hasHonoViteDevServer)
+-                        return;
+-                    return () => {
+-                        addSsrMiddleware(server.middlewares, config, false);
+-                    };
++                    // const hasHonoViteDevServer = !!config.plugins.find((p) => p.name === '@hono/vite-dev-server');
++                    // if (config.server.middlewareMode || hasHonoViteDevServer)
++                    //     return;
++                    // return () => {
++                    //     addSsrMiddleware(server.middlewares, config, false);
++                    // };
+                 }
+             },
+             // Setting `configResolved.clearScreen = false` doesn't work
+diff --git a/dist/esm/node/runtime/renderPage/getPageAssets/retrieveAssetsDev.js b/dist/esm/node/runtime/renderPage/getPageAssets/retrieveAssetsDev.js
+index 0639ba92628c4cda6195b4dc6816f043b5523130..f2da977ae4480a5b3b02fbf92dc0168f63511e90 100644
+--- a/dist/esm/node/runtime/renderPage/getPageAssets/retrieveAssetsDev.js
++++ b/dist/esm/node/runtime/renderPage/getPageAssets/retrieveAssetsDev.js
+@@ -10,7 +10,7 @@ async function retrieveAssetsDev(clientDependencies, viteDevServer) {
+         const { moduleGraph } = viteDevServer;
+         const [_, graphId] = await moduleGraph.resolveUrl(id);
+         assert(graphId, { id });
+-        const mod = moduleGraph.getModuleById(graphId);
++        const mod = await moduleGraph.getModuleById(graphId);
+         if (!mod) {
+             /* Not sure when the assertion fails. So let's just remove it for now.
+              *  - https://github.com/vikejs/vike/issues/391
+diff --git a/dist/esm/utils/assertIsNotProductionRuntime.js b/dist/esm/utils/assertIsNotProductionRuntime.js
+index f100befb0e0dfb6c0337bf4ea188c37665262037..56334a598f81fa43a234ce5cd92920808781b803 100644
+--- a/dist/esm/utils/assertIsNotProductionRuntime.js
++++ b/dist/esm/utils/assertIsNotProductionRuntime.js
+@@ -45,15 +45,15 @@ function assertEnv() {
+     if (isVitest())
+         return;
+     const isProduction = !env.isViteDev && !env.isVitePreview;
+-    if (isProduction) {
+-        // Seems to be the only reliable way to assert that the user doesn't load Vike's Vite plugin in production. (The other assert() that uses process.env.NODE_ENV doesn't work if the user sets the process.env.NODE_ENV value later.)
+-        assertUsage(!env.isVikePluginLoaded, vikeVitePluginLoadedInProductionError);
+-        // This assert() is the main goal of this file: it ensures assertIsNotProductionRuntime()
+-        assert(!env.shouldNotBeProduction);
+-    }
+-    else {
+-        // This assert() is obious and boring
+-        assert(env.shouldNotBeProduction);
+-        assert(env.isVikePluginLoaded);
+-    }
++    // if (isProduction) {
++    //     // Seems to be the only reliable way to assert that the user doesn't load Vike's Vite plugin in production. (The other assert() that uses process.env.NODE_ENV doesn't work if the user sets the process.env.NODE_ENV value later.)
++    //     assertUsage(!env.isVikePluginLoaded, vikeVitePluginLoadedInProductionError);
++    //     // This assert() is the main goal of this file: it ensures assertIsNotProductionRuntime()
++    //     assert(!env.shouldNotBeProduction);
++    // }
++    // else {
++    //     // This assert() is obious and boring
++    //     assert(env.shouldNotBeProduction);
++    //     assert(env.isVikePluginLoaded);
++    // }
+ }

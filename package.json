@@ -22,6 +22,9 @@
     "overrides": {
       "vite-plugin-standalone": "link:./packages/vite-plugin-standalone/",
       "@nitedani/vite-plugin-node": "link:./packages/vite-plugin-node/"
+    },
+    "patchedDependencies": {
+      "vike@0.4.179": "patches/vike@0.4.179.patch"
     }
   }
 }

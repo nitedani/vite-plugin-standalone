@@ -16,7 +16,7 @@
     "prettier": "^3.0.3",
     "prisma": "^5.0.0",
     "typescript": "^5.2.2",
-    "vite": "v6.0.0-alpha.11",
+    "vite": "v6.0.0-alpha.18",
     "rimraf": "^5.0.5",
     "@nitedani/vite-plugin-node": "2.0.0-alpha.1"
   },

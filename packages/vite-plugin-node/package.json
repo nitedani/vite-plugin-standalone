@@ -52,7 +52,7 @@
   "devDependencies": {
     "rimraf": "^3.0.2",
     "typescript": "^5.3.3",
-    "vite": "6.0.0-alpha.11",
+    "vite": "v6.0.0-alpha.18",
     "fastify": "^4.26.1",
     "@types/node": "^20.11.19",
     "esbuild": "^0.20.1"

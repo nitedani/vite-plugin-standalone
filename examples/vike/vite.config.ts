@@ -7,7 +7,7 @@ const config: UserConfig = {
     react(),
     vike(),
     viteNode({
-      entry: './server/index.ts',
+      entry: './src/server/index.ts',
       standalone: true
     })
   ]

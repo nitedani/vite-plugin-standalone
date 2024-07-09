@@ -6,7 +6,7 @@ import { ChildProcess, fork } from 'child_process'
 import {
   DevEnvironment,
   EnvironmentModuleNode,
-  HMRChannel,
+  HotChannel,
   Plugin,
   RemoteEnvironmentTransport,
   ViteDevServer
@@ -20,7 +20,7 @@ import { assert } from '../utils/assert.js'
 
 const workerPath = new URL('./worker.js', import.meta.url).pathname
 
-let ws: HMRChannel | undefined
+let ws: HotChannel | undefined
 let vite: ViteDevServer
 let rpc: BirpcReturn<ClientFunctions, ServerFunctions>
 let cp: ChildProcess | undefined
@@ -216,12 +216,12 @@ function createSimpleHMRChannel(options: {
   post: (data: any) => any
   on: (listener: (data: any) => void) => () => void
   onRestartWorker: () => void
-}): HMRChannel {
+}): HotChannel {
   const listerMap = new DefaultMap<string, Set<Function>>(() => new Set())
   let dispose: (() => void) | undefined
 
   return {
-    name: options.name,
+    // name: options.name,
     listen() {
       dispose = options.on((payload) => {
         for (const f of listerMap.get(payload.event)) {
