@@ -25,7 +25,7 @@ function renderAsset(url: string, headers: HeadersProvided): Promise<RenderAsset
   }
 
   const assetRequest = request({
-    host: '127.0.0.1',
+    host: 'localhost',
     port: viteMiddlewareProxyPort,
     headers: convertToHttpHeaders(parsedHeaders),
     path: url
