@@ -163,7 +163,7 @@ function devServerPlugin(resolvedConfig: ConfigViteNodeResolved): Plugin {
         post: (data) => cp?.send(data),
         // eager
         on: (data) => cp!.on('message', data),
-        timeout: 1000
+        timeout: 10000
       }
     )
 

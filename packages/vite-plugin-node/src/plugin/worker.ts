@@ -92,7 +92,7 @@ const rpc = createBirpc<ServerFunctions, ClientFunctions>(
     on: (data) => {
       process.on('message', data)
     },
-    timeout: 1000
+    timeout: 10000
   }
 )
 
