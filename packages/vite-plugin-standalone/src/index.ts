@@ -29,7 +29,7 @@ export const standalone = (options?: StandaloneOptions): Plugin => {
   let root = '';
   let outDir = '';
   let outDirAbs = '';
-  let rollupEntryFilePaths: string[];
+  let rollupEntryFilePaths: string[] = [];
   let rollupResolve: any;
   // Native dependencies always need to be esbuild external
   let native: string[] = [

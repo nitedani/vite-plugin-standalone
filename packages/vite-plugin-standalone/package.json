@@ -30,10 +30,11 @@
     "esbuild": "*"
   },
   "devDependencies": {
+    "@types/node": "^20.11.19",
+    "esbuild": "^0.20.1",
     "rimraf": "^3.0.2",
     "typescript": "^5.2.2",
-    "vite": "v6.0.0-alpha.18",
-    "esbuild": "^0.20.1"
+    "vite": "v6.0.0-alpha.18"
   },
   "prettier": {
     "singleQuote": true,

@@ -1,0 +1,25 @@
+{
+  "name": "vite-plugin-standalone-example-jose",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "vite",
+    "build": "rimraf dist && vite build --ssr --mode=production"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@nitedani/vite-plugin-node": "2.0.0-alpha.1",
+    "@types/node": "^20.6.5",
+    "prettier": "^3.0.3",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.2.2",
+    "vite": "v6.0.0-alpha.18"
+  },
+  "dependencies": {
+    "jose": "^5.7.0"
+  },
+  "version": "2.0.0-alpha.5"
+}
